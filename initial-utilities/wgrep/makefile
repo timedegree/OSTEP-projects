@@ -14,7 +14,7 @@ test: $(TARGET)
 	./$(TEST_SCRIPT)
 
 clean:
-	rm -f $(TARGET)
+	rm -f $(TARGET) $(TARGET).o
 	rm -rf $(TEST_OUTPUT_DIR)
 
 .PHONY: all test clean
