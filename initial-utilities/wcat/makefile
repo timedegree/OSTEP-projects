@@ -1,4 +1,3 @@
-
 TARGET = wcat
 TEST_SCRIPT = test-wcat.sh
 TEST_OUTPUT_DIR = tests-out
@@ -12,7 +11,7 @@ $(TARGET): $(TARGET).c
 	$(CC) $(CFLAGS) -o $@ $<
 
 test: $(TARGET)
-	./$(TEST_SCRIPT)
+	./$(TEST_SCRIPT) $(TEST_FLAGS)
 
 clean:
 	rm -f $(TARGET) $(TARGET).o

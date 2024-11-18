@@ -11,7 +11,7 @@ $(TARGET): $(TARGET).c
 	$(CC) $(CFLAGS) -o $@ $<
 
 test: $(TARGET)
-	./$(TEST_SCRIPT)
+	./$(TEST_SCRIPT) $(TEST_FLAGS)
 
 clean:
 	rm -f $(TARGET) $(TARGET).o

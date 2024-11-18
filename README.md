@@ -18,7 +18,7 @@ use makefile to perform the following operations
 
 ### compile
 
-this will compile the lab code
+compile the lab code
 
 ~~~makefile
 make 
@@ -26,15 +26,17 @@ make
 
 ### test
 
-this will run the test cases for the lab
+run the test cases for the lab
 
 ~~~makefile
 make test
+# or verbose output
+make test TEST_FLAGS=-v
 ~~~
 
 ### clean
 
-this will delete all the executables and test-out files
+delete all the executables and test-out files
 
 ~~~makefile
 make clean
