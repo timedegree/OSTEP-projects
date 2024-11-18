@@ -10,7 +10,9 @@ int main(int argc,char *argv[])
   }
   
   if(argc > 1){
-    int count = 1;
+    int count;
+    char prev_file_end=EOF;
+    int prev_file_count;
 
     while(--argc >0){
       FILE *fp = fopen(*++argv,"r");
@@ -24,6 +26,7 @@ int main(int argc,char *argv[])
         fclose(fp);
         continue;
       }
+      count = prev_file_end == prev ? prev_file_count + 1 : 1; 
       char curr;
       
       while((curr = fgetc(fp)) != EOF){
@@ -41,6 +44,9 @@ int main(int argc,char *argv[])
       if(argc == 1){
         fwrite(&count,sizeof(int),1,stdout);
         fwrite(&prev,sizeof(char),1,stdout);
+      } else {
+        prev_file_end = prev;
+        prev_file_count = count;
       }
       fclose(fp);
     }
