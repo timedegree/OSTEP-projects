@@ -9,8 +9,8 @@ My solutions for [OSTEP projects](https://github.com/remzi-arpacidusseau/ostep-p
 - Inintial Utilities
   - [x] wcat
   - [x] wgrep
-  - [ ] wzip
-  - [ ] wunzip
+  - [x] wzip
+  - [x] wunzip
 
 ## Usage
 
