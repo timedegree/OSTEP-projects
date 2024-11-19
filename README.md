@@ -6,11 +6,12 @@ My solutions for [OSTEP projects](https://github.com/remzi-arpacidusseau/ostep-p
 
 ## table of content
 
-- Inintial Utilities
+- [x] Inintial Utilities
   - [x] wcat
   - [x] wgrep
   - [x] wzip
   - [x] wunzip
+- [x] Inintial Reverse
 
 ## Usage
 
