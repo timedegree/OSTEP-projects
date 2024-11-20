@@ -12,6 +12,7 @@ My solutions for [OSTEP projects](https://github.com/remzi-arpacidusseau/ostep-p
   - [x] wzip
   - [x] wunzip
 - [x] Inintial Reverse
+- [ ] Processes Shell
 
 ## Usage
 
