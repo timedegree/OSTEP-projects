@@ -27,17 +27,28 @@ void add_path(char *new_path) {
     return;
   }
 
+  for (size_t i = 0; i < paths_num; i++) { // path exists
+    if (strcmp(paths[i], new_path) == 0) {
+        return;    
+    }
+  }
+
   paths_num++;
   paths = realloc(paths, paths_num * sizeof(char *));
   if (paths == NULL) {
     error();
     exit(1);
   }
+
   paths[paths_num - 1] = strdup(new_path);
   if (paths[paths_num - 1] == NULL) {
     error();
     exit(1);
   }
+}
+
+bool check_redirection(){
+  
 }
 
 
@@ -62,6 +73,17 @@ void excute_command(char **command_args, size_t command_args_count){
     } else if(!strcmp(command_args[i],"path")){
       add_path(command_args[i+1]);
       i++;
+    }
+    else{ // external command excute
+      pid_t pid = fork();
+      if(pid == -1){
+        error();
+        exit(1);
+      } else if(pid == 0){ // child
+         
+      } else{ // parent
+
+      }
     }
   }
   
