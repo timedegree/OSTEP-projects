@@ -7,6 +7,7 @@
 
 char **paths = NULL;
 size_t paths_num = 0;
+size_t child_num = 0;
 
 void error(){
   char error_message[30] = "An error has occurred\n";
@@ -58,7 +59,7 @@ void excute_command(char **command_args, size_t command_args_count){
   for(int i=0;i<command_args_count;i++){
     // built-in command excute
     if(!strcmp(command_args[i],"exit")){
-      if(!strcmp(command_args[i+1],"NULL")){
+      if(i+1 == command_args_count || !strcmp(command_args[i+1],"\0")){
         exit(0);
       } else{
         i++;
@@ -111,7 +112,12 @@ void shell(FILE *fp, bool flag){
         exit(1);
       }
 
-      command_args[command_args_count] = strdup(tmp);
+      if(!strcmp(tmp,"&")) {
+        command_args[command_args_count] = strdup("\0"); 
+      }
+      else {
+        command_args[command_args_count] = strdup(tmp);
+      }
       if(command_args[command_args_count] == NULL) {
         error();
         exit(1);
@@ -134,7 +140,8 @@ void shell(FILE *fp, bool flag){
 
     print_prompt(flag); 
   }
-
+  
+  free(line);
   exit(0);
 }
 
@@ -145,7 +152,10 @@ void initialize(){
 
   paths[0] = strdup("/bin");
   paths[1] = strdup("/usr/bin");
-  if(paths[0] == NULL || paths[1] == NULL) error();
+  if(paths[0] == NULL || paths[1] == NULL) {
+    error();
+    exit(1);
+  }
 }
 
 
@@ -153,10 +163,14 @@ int main(int argc, char *argv[]){
   initialize();
 
   if(argc == 1){ // if no args,get command from standard input
-    FILE *fp = stdin;
-    shell(fp,true);
+    shell(stdin,true);
   } else if(argc == 2){ // else, get command from file
     FILE *fp = fopen(*++argv,"r");
+    if(fp == NULL) {
+      error();
+      exit(1);
+    }
+
     shell(fp,false);
   } else{
     error();
