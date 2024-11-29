@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
@@ -49,14 +50,14 @@ void add_path(char *new_path) {
   }
 }
 
-int handle_redirection() {
+int handle_redirection(command_args, start) {
 
 }
 
 void excute_command(char **command_args, size_t command_args_count){
   if(command_args_count == 0) return; // no command to excute
   
-  for(int i=0;i<command_args_count;i++){
+  for(size_t i=0;i<command_args_count;i++){
     // built-in command excute
     if(!strcmp(command_args[i],"exit")){
       if(i+1 == command_args_count || command_args[i+1] == NULL){
@@ -86,12 +87,12 @@ void excute_command(char **command_args, size_t command_args_count){
         exit(1);
       } else if(pid == 0){ // child
         if(handle_redirection(command_args,i)) {
-          for(int j = 0; j<paths_num;j++){
+          for(size_t j = 0; j<paths_num;j++){
             char *command = malloc((strlen(paths[j])+1+strlen(command_args[i]))*sizeof(char));
             strcpy(command,paths[j]);
             strcat(command,"/");
             strcat(command,command_args[i]);
-            if(access(command,X_OK)) {
+            if(!access(command,X_OK)) {
               execv(command,command_args+i);
             }
           }
@@ -117,7 +118,7 @@ void shell(FILE *fp, bool flag){
     // handle & > |
     char *processed_line = NULL;
     size_t processed_len = 0;
-    for(int i=0;i<len;i++)  {
+    for(size_t i=0;i<len;i++)  {
       char tmp_char = line[i];
       if(tmp_char == '&' || tmp_char == '>' || tmp_char == '|') {
         processed_line = realloc(processed_line, processed_len+3) ;
@@ -184,7 +185,7 @@ void shell(FILE *fp, bool flag){
 
     // free allocated memory 
     free(line);
-    for(int i=0;i<command_args_count;i++){
+    for(size_t i=0;i<command_args_count;i++){
       free(command_args[i]);
     }
     free(command_args);
