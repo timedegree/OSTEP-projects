@@ -7,6 +7,7 @@
 
 char **paths = NULL;
 size_t paths_num = 0;
+pid_t *child_pids = NULL;
 size_t child_num = 0;
 
 void error(){
@@ -48,10 +49,9 @@ void add_path(char *new_path) {
   }
 }
 
-bool check_redirection(){
-  
-}
+int handle_redirection() {
 
+}
 
 void excute_command(char **command_args, size_t command_args_count){
   if(command_args_count == 0) return; // no command to excute
@@ -59,29 +59,45 @@ void excute_command(char **command_args, size_t command_args_count){
   for(int i=0;i<command_args_count;i++){
     // built-in command excute
     if(!strcmp(command_args[i],"exit")){
-      if(i+1 == command_args_count || !strcmp(command_args[i+1],"\0")){
+      if(i+1 == command_args_count || command_args[i+1] == NULL){
         exit(0);
       } else{
         i++;
         error();
       }
     } else if(!strcmp(command_args[i],"cd")){
-      if(chdir(command_args[i+1])){
+      if(chdir(command_args[++i])){
         error();
-      } else{
-        
       }
-    } else if(!strcmp(command_args[i],"path")){
-      add_path(command_args[i+1]);
+      while(command_args[i] != NULL) {
+        i++;
+      }
       i++;
+    } else if(!strcmp(command_args[i],"path")){
+      
     }
     else{ // external command excute
       pid_t pid = fork();
+      child_pids = realloc(child_pids,++child_num);
+      child_pids[child_num-1] = pid;
+
       if(pid == -1){
         error();
         exit(1);
       } else if(pid == 0){ // child
-         
+        if(handle_redirection(command_args,i)) {
+          for(int j = 0; j<paths_num;j++){
+            char *command = malloc((strlen(paths[j])+1+strlen(command_args[i]))*sizeof(char));
+            strcpy(command,paths[j]);
+            strcat(command,"/");
+            strcat(command,command_args[i]);
+            if(access(command,X_OK)) {
+              execv(command,command_args+i);
+            }
+          }
+          error();
+          exit(1);
+        } 
       } else{ // parent
 
       }
@@ -92,11 +108,46 @@ void excute_command(char **command_args, size_t command_args_count){
 
 void shell(FILE *fp, bool flag){
   char *line = NULL;
-  size_t len;
+  size_t len = 0;
 
   print_prompt(flag);
   while(getline(&line,&len,fp) != -1){
     line[strcspn(line,"\n")] = '\0';
+
+    // handle & > |
+    char *processed_line = NULL;
+    size_t processed_len = 0;
+    for(int i=0;i<len;i++)  {
+      char tmp_char = line[i];
+      if(tmp_char == '&' || tmp_char == '>' || tmp_char == '|') {
+        processed_line = realloc(processed_line, processed_len+3) ;
+        if(processed_line == NULL) {
+          error();
+          exit(1);
+        }
+        
+        processed_line[processed_len++] = ' ';
+        processed_line[processed_len++] = tmp_char;
+        processed_line[processed_len++] = ' ';
+      } else{
+        processed_line = realloc(processed_line, processed_len+1) ;
+        if(processed_line == NULL){
+          error();
+          exit(1);
+        }
+
+        processed_line[processed_len++] = tmp_char;
+      }
+    }
+    processed_line = realloc(processed_line, processed_len+1);
+    if(processed_line == NULL) {
+      error();
+      exit(1);
+    }
+    processed_line[processed_len] = '\0';
+
+    free(line);
+    line = processed_line;
 
     // get user input args
     char **command_args = NULL;
@@ -111,11 +162,11 @@ void shell(FILE *fp, bool flag){
         error();
         exit(1);
       }
-
+      
+      // change & to NULL
       if(!strcmp(tmp,"&")) {
-        command_args[command_args_count] = strdup("\0"); 
-      }
-      else {
+        command_args[command_args_count] = NULL;
+      } else{
         command_args[command_args_count] = strdup(tmp);
       }
       if(command_args[command_args_count] == NULL) {
@@ -146,13 +197,16 @@ void shell(FILE *fp, bool flag){
 }
 
 void initialize(){
-  paths_num = 2;
+  paths_num = 1;
   paths = malloc(paths_num * sizeof(char *));
-  if(paths == NULL) error();
+  if(paths == NULL) 
+  {
+    error();
+    exit(1);
+  }
 
   paths[0] = strdup("/bin");
-  paths[1] = strdup("/usr/bin");
-  if(paths[0] == NULL || paths[1] == NULL) {
+  if(paths[0] == NULL) {
     error();
     exit(1);
   }
